@@ -73,12 +73,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: taotaotao07/docsync-guard@v0.1.0
+      - uses: taotaotao07/docsync-guard@v0.1.1
         with:
           config: docsync.yml
 ```
 
 这个 Action 会在 job 日志里打印 terminal report，并把 Markdown report 写入 GitHub Actions step summary。v0.1 不默认评论拉取请求，也不默认阻塞 CI。
+
+## CI 失败模式
+
+DocSync Guard 会把报告和 CI 失败分开处理。默认情况下，它只报告问题，并以成功状态退出。
+
+宽松模式：
+
+```yaml
+fail_on:
+  missing_sections: false
+  outdated_sections: false
+  broken_links: false
+  terminology_drift: false
+  image_path_broken: false
+```
+
+对缺失章节和损坏资源启用严格模式：
+
+```yaml
+fail_on:
+  missing_sections: true
+  outdated_sections: false
+  broken_links: true
+  terminology_drift: false
+  image_path_broken: true
+```
+
+GitHub Action 覆盖：
+
+```yaml
+- uses: taotaotao07/docsync-guard@v0.1.1
+  with:
+    config: docsync.yml
+    fail_on: broken_links,image_path_broken,missing_sections
+```
+
+CLI 覆盖：
+
+```bash
+docsync check --config docsync.yml --fail-on broken_links,image_path_broken
+```
 
 ## 报告示例
 

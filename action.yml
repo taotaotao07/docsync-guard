@@ -6,6 +6,10 @@ inputs:
     description: Path to the DocSync Guard config file.
     required: false
     default: docsync.yml
+  fail_on:
+    description: Comma-separated issue types that should fail CI.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -28,3 +32,8 @@ runs:
         REPORT_PATH="$RUNNER_TEMP/docsync-guard-summary.md"
         node "$GITHUB_ACTION_PATH/dist/cli.js" check --config "${{ inputs.config }}" --format markdown --output "$REPORT_PATH"
         cat "$REPORT_PATH" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Apply DocSync Guard fail_on policy
+      if: inputs.fail_on != ''
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/dist/cli.js" check --config "${{ inputs.config }}" --quiet --fail-on "${{ inputs.fail_on }}"

@@ -1,6 +1,6 @@
 {
   "name": "docsync-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Catch stale translated Markdown docs before they merge.",
   "type": "module",
   "bin": {

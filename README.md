@@ -73,12 +73,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: taotaotao07/docsync-guard@v0.1.0
+      - uses: taotaotao07/docsync-guard@v0.1.1
         with:
           config: docsync.yml
 ```
 
 The action prints a terminal report in the job log and writes a Markdown report to the GitHub Actions step summary. It does not comment on pull requests or fail CI by default.
+
+## CI Failure Modes
+
+DocSync Guard separates reporting from CI failure. By default, it reports issues and exits successfully.
+
+Relaxed mode:
+
+```yaml
+fail_on:
+  missing_sections: false
+  outdated_sections: false
+  broken_links: false
+  terminology_drift: false
+  image_path_broken: false
+```
+
+Strict mode for missing sections and broken resources:
+
+```yaml
+fail_on:
+  missing_sections: true
+  outdated_sections: false
+  broken_links: true
+  terminology_drift: false
+  image_path_broken: true
+```
+
+GitHub Action override:
+
+```yaml
+- uses: taotaotao07/docsync-guard@v0.1.1
+  with:
+    config: docsync.yml
+    fail_on: broken_links,image_path_broken,missing_sections
+```
+
+CLI override:
+
+```bash
+docsync check --config docsync.yml --fail-on broken_links,image_path_broken
+```
 
 ## Reports
 
