@@ -150,4 +150,21 @@ describe("runChecks", () => {
       }
     ]);
   });
+
+  it("returns outdated section issues from the section hash cache", async () => {
+    const configPath = "tests/fixtures/section-hash/docsync.yml";
+    const config = await loadConfig(configPath);
+    const report = await runChecks(config, configPath);
+    const targetReport = report.targets.find((target) => target.path === "README.zh-CN.md");
+
+    expect(targetReport?.issues).toEqual([
+      {
+        type: "outdated_section",
+        severity: "warning",
+        target: "README.zh-CN.md",
+        section: "Quick Start",
+        message: 'README.zh-CN.md may be stale because source section "Quick Start" changed'
+      }
+    ]);
+  });
 });

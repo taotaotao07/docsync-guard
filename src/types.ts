@@ -71,6 +71,12 @@ export type MarkdownResource = {
   line: number;
 };
 
+export type MarkdownSection = {
+  heading: MarkdownHeading;
+  content: string;
+  hash: string;
+};
+
 export type TargetReport = {
   path: string;
   language?: string;

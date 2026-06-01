@@ -45,14 +45,15 @@ export function renderMarkdownReport(report: DocSyncReport): string {
     "",
     "### Summary",
     "",
-    "| Target | Issues | Missing sections | Broken resources | Terminology drift |",
-    "|---|---:|---:|---:|---:|",
+    "| Target | Issues | Missing sections | Outdated sections | Broken resources | Terminology drift |",
+    "|---|---:|---:|---:|---:|---:|",
     ...report.targets.map((target) => {
       const missingSections = target.issues.filter((issue) => issue.type === "missing_section").length;
+      const outdatedSections = target.issues.filter((issue) => issue.type === "outdated_section").length;
       const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link").length;
       const brokenImages = target.issues.filter((issue) => issue.type === "broken_image").length;
       const terminologyDrift = target.issues.filter((issue) => issue.type === "terminology_drift").length;
-      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} | ${brokenLinks + brokenImages} | ${terminologyDrift} |`;
+      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} | ${outdatedSections} | ${brokenLinks + brokenImages} | ${terminologyDrift} |`;
     })
   ];
 
@@ -73,10 +74,17 @@ export function renderMarkdownReport(report: DocSyncReport): string {
 
   for (const target of report.targets) {
     const missingSections = target.issues.filter((issue) => issue.type === "missing_section");
+    const outdatedSections = target.issues.filter((issue) => issue.type === "outdated_section");
     const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link");
     const brokenImages = target.issues.filter((issue) => issue.type === "broken_image");
     const terminologyDrift = target.issues.filter((issue) => issue.type === "terminology_drift");
-    if (missingSections.length === 0 && brokenLinks.length === 0 && brokenImages.length === 0 && terminologyDrift.length === 0) {
+    if (
+      missingSections.length === 0 &&
+      outdatedSections.length === 0 &&
+      brokenLinks.length === 0 &&
+      brokenImages.length === 0 &&
+      terminologyDrift.length === 0
+    ) {
       continue;
     }
 
@@ -84,6 +92,10 @@ export function renderMarkdownReport(report: DocSyncReport): string {
 
     if (missingSections.length > 0) {
       lines.push("#### Missing sections", "", ...missingSections.map((issue) => `- \`${issue.section ?? issue.message}\``), "");
+    }
+
+    if (outdatedSections.length > 0) {
+      lines.push("#### Possibly outdated sections", "", ...outdatedSections.map((issue) => `- \`${issue.section ?? issue.message}\``), "");
     }
 
     if (brokenLinks.length > 0) {
@@ -134,6 +146,10 @@ function renderIssueLines(target: TargetReport): string[] {
 
   if (grouped.missing_section.length > 0) {
     lines.push("Missing sections:", ...grouped.missing_section.map((issue) => `- ${issue.section ?? issue.message}`));
+  }
+
+  if (grouped.outdated_section.length > 0) {
+    lines.push("Possibly outdated sections:", ...grouped.outdated_section.map((issue) => `- ${issue.section ?? issue.message}`));
   }
 
   if (grouped.broken_link.length > 0) {
