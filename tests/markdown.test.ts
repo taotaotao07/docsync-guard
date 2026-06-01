@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeHeading, parseMarkdownHeadings } from "../src/markdown.js";
+import { normalizeHeading, parseMarkdownHeadings, parseMarkdownResources } from "../src/markdown.js";
 
 describe("parseMarkdownHeadings", () => {
   it("extracts heading depth, text, slug, and line number", () => {
@@ -34,5 +34,28 @@ describe("parseMarkdownHeadings", () => {
 describe("normalizeHeading", () => {
   it("normalizes casing, whitespace, and markdown punctuation", () => {
     expect(normalizeHeading("  **Quick   Start**  ")).toBe("quick start");
+  });
+});
+
+describe("parseMarkdownResources", () => {
+  it("extracts Markdown links and images", () => {
+    const resources = parseMarkdownResources(
+      ["# Project", "", "[Setup](./docs/setup.md)", "", "![Architecture](./assets/architecture.png)"].join("\n")
+    );
+
+    expect(resources).toEqual([
+      {
+        type: "link",
+        url: "./docs/setup.md",
+        label: "Setup",
+        line: 3
+      },
+      {
+        type: "image",
+        url: "./assets/architecture.png",
+        label: "Architecture",
+        line: 5
+      }
+    ]);
   });
 });

@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
-import { parseMarkdownHeadings } from "./markdown.js";
+import { parseMarkdownHeadings, parseMarkdownResources } from "./markdown.js";
 import { findMissingSections } from "./checks/headings.js";
+import { findBrokenLocalResources } from "./checks/links.js";
 import type { DocSyncConfig, DocSyncReport } from "./types.js";
 
 export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml"): Promise<DocSyncReport> {
@@ -9,26 +10,44 @@ export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml
   const sourcePath = resolve(baseDir, config.source);
   const sourceMarkdown = await readFile(sourcePath, "utf8");
   const sourceHeadings = parseMarkdownHeadings(sourceMarkdown);
+  const sourceResources = parseMarkdownResources(sourceMarkdown);
+  const sourceIssues =
+    config.rules.links || config.rules.images
+      ? findBrokenLocalResources(sourcePath, sourceResources, {
+          checkLinks: config.rules.links,
+          checkImages: config.rules.images,
+          displayPath: config.source
+        })
+      : [];
 
   const targets = await Promise.all(
     config.targets.map(async (target) => {
       const targetPath = resolve(baseDir, target.path);
       const targetMarkdown = await readFile(targetPath, "utf8");
       const targetHeadings = parseMarkdownHeadings(targetMarkdown);
-      const issues = config.rules.heading_structure
+      const headingIssues = config.rules.heading_structure
         ? findMissingSections(sourceHeadings, targetHeadings, target.path)
         : [];
+      const resourceIssues =
+        config.rules.links || config.rules.images
+          ? findBrokenLocalResources(targetPath, parseMarkdownResources(targetMarkdown), {
+              checkLinks: config.rules.links,
+              checkImages: config.rules.images,
+              displayPath: target.path
+            })
+          : [];
 
       return {
         path: target.path,
         language: target.language,
-        issues
+        issues: [...headingIssues, ...resourceIssues]
       };
     })
   );
 
   return {
     source: config.source,
+    sourceIssues,
     targets
   };
 }
