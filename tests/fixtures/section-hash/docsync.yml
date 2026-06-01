@@ -1,0 +1,12 @@
+source: README.md
+
+targets:
+  - path: README.zh-CN.md
+    language: zh-CN
+
+rules:
+  heading_structure: true
+  section_hash: true
+  links: false
+  images: false
+  terminology: false

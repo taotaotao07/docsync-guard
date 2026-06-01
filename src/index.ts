@@ -1,5 +1,5 @@
 export { loadConfig, normalizeConfig } from "./config.js";
-export { parseMarkdownHeadings, parseMarkdownResources, normalizeHeading } from "./markdown.js";
+export { hashSectionContent, parseMarkdownHeadings, parseMarkdownResources, splitMarkdownSections, normalizeHeading } from "./markdown.js";
 export { createEmptyReport, renderJsonReport, renderMarkdownReport, renderReport, renderTerminalReport } from "./report.js";
 export { runChecks } from "./runner.js";
 export type {

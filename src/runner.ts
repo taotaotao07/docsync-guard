@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { parseMarkdownHeadings, parseMarkdownResources } from "./markdown.js";
+import { dirname, join, resolve } from "node:path";
+import { parseMarkdownHeadings, parseMarkdownResources, splitMarkdownSections } from "./markdown.js";
 import { findMissingSections } from "./checks/headings.js";
 import { findBrokenLocalResources } from "./checks/links.js";
 import { findTerminologyDrift } from "./checks/terms.js";
+import { findOutdatedSections, loadSectionHashCache } from "./checks/sectionHash.js";
 import type { DocSyncConfig, DocSyncReport } from "./types.js";
 
 export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml"): Promise<DocSyncReport> {
@@ -12,6 +13,10 @@ export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml
   const sourceMarkdown = await readFile(sourcePath, "utf8");
   const sourceHeadings = parseMarkdownHeadings(sourceMarkdown);
   const sourceResources = parseMarkdownResources(sourceMarkdown);
+  const sourceSections = splitMarkdownSections(sourceMarkdown);
+  const sectionHashCache = config.rules.section_hash
+    ? await loadSectionHashCache(join(baseDir, ".docsync-cache.json"))
+    : null;
   const sourceIssues =
     config.rules.links || config.rules.images
       ? findBrokenLocalResources(sourcePath, sourceResources, {
@@ -46,11 +51,19 @@ export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml
             terms: config.terms
           })
         : [];
+      const outdatedSectionIssues = config.rules.section_hash
+        ? findOutdatedSections({
+            sourcePath: config.source,
+            targetPath: target.path,
+            sections: sourceSections,
+            cache: sectionHashCache
+          })
+        : [];
 
       return {
         path: target.path,
         language: target.language,
-        issues: [...headingIssues, ...resourceIssues, ...terminologyIssues]
+        issues: [...headingIssues, ...outdatedSectionIssues, ...resourceIssues, ...terminologyIssues]
       };
     })
   );

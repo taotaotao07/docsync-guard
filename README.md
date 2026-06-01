@@ -12,6 +12,8 @@ It does not translate your docs. It checks for maintenance risks:
 - missing image paths
 - terminology drift
 
+Stale section checks use an optional committed `.docsync-cache.json` baseline. If the cache file is not present, DocSync Guard skips stale section reporting instead of guessing.
+
 ## Status
 
 DocSync Guard is currently in v0.1 planning and scaffold stage. The v0.1 scope is intentionally rules-based, low-intrusion, and non-blocking by default.

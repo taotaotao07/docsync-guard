@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeHeading, parseMarkdownHeadings, parseMarkdownResources } from "../src/markdown.js";
+import { hashSectionContent, normalizeHeading, parseMarkdownHeadings, parseMarkdownResources, splitMarkdownSections } from "../src/markdown.js";
 
 describe("parseMarkdownHeadings", () => {
   it("extracts heading depth, text, slug, and line number", () => {
@@ -57,5 +57,16 @@ describe("parseMarkdownResources", () => {
         line: 5
       }
     ]);
+  });
+});
+
+describe("splitMarkdownSections", () => {
+  it("splits markdown into heading-based sections with stable hashes", () => {
+    const markdown = ["# Project", "", "Intro.", "", "## Quick Start", "", "Run it."].join("\n");
+    const sections = splitMarkdownSections(markdown);
+
+    expect(sections.map((section) => section.heading.text)).toEqual(["Project", "Quick Start"]);
+    expect(sections[0]?.content).toContain("Intro.");
+    expect(sections[1]?.hash).toBe(hashSectionContent(["## Quick Start", "", "Run it."].join("\n")));
   });
 });

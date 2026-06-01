@@ -12,6 +12,8 @@ DocSync Guard 是一个零 API key 的 CLI 和 GitHub Action，面向维护多�
 - 缺失的图片路径
 - 术语漂移
 
+过期章节检查依赖可选的 `.docsync-cache.json` 基线文件。如果缓存文件不存在，DocSync Guard 会跳过 stale section 报告，不会自行猜测。
+
 ## 当前状态
 
 DocSync Guard 目前处于 v0.1 规划和项目骨架阶段。v0.1 会保持纯规则、低侵入、默认不阻塞 CI。
