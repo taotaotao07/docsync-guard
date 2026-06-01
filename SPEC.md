@@ -61,7 +61,7 @@ v0.1 must ship exactly these five things:
 1. CLI: `docsync check`
 2. Config file: `docsync.yml`
 3. Reports: terminal, markdown, json
-4. GitHub Action: PR summary / optional PR comment
+4. GitHub Action: terminal report and GitHub Actions step summary
 5. Demo repo or demo folder showing one real check result
 
 ## 5. CLI Design
@@ -377,13 +377,6 @@ Default behavior:
 - Write markdown report to GitHub Step Summary
 - Do not comment on PR by default
 - Do not fail CI by default
-
-Optional PR comment:
-
-```yaml
-with:
-  comment: true
-```
 
 Optional CI failure:
 

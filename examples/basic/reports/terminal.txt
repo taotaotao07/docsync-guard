@@ -1,0 +1,24 @@
+DocSync Guard Report
+
+Source:
+- README.md
+
+Targets:
+- README.zh-CN.md (zh-CN)
+
+Summary:
+- Total issues: 7
+
+README.zh-CN.md
+Missing sections:
+- API Reference
+Possibly outdated sections:
+- Quick Start
+Broken links:
+- ./docs/missing-setup.md
+Broken image paths:
+- ./assets/missing.png
+Terminology drift:
+- workspace: expected 工作区
+- pull request: expected 拉取请求
+- release: expected 发布

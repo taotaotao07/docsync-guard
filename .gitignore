@@ -2,6 +2,8 @@ node_modules/
 dist/
 coverage/
 .docsync-cache.json
+!examples/**/.docsync-cache.json
+!tests/fixtures/**/.docsync-cache.json
 docsync-report.md
 docsync-report.json
 .env
