@@ -1,6 +1,6 @@
 # DocSync Guard
 
-**在合并 PR 前发现过期翻译文档。**
+**在合并拉取请求前发现过期翻译文档。**
 
 DocSync Guard 是一个零 API key 的 CLI 和 GitHub Action，面向维护多语言 Markdown 文档的开源维护者。
 
@@ -28,27 +28,12 @@ docsync check --fail-on broken_links,missing_sections
 ## 计划中的 GitHub Action
 
 ```yaml
-name: DocSync Guard
-
-on:
-  pull_request:
-    paths:
-      - "README.md"
-      - "README.zh-CN.md"
-      - "docs/**"
-      - "docsync.yml"
-
-jobs:
-  docsync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: taotaotao07/docsync-guard@v0.1
-        with:
-          config: docsync.yml
-          format: markdown
-          comment: false
+- uses: taotaotao07/docsync-guard@v0.1
+  with:
+    config: docsync.yml
 ```
+
+这个 Action 会在 job 日志里打印 terminal report，并把 Markdown report 写入 GitHub Actions step summary。v0.1 不默认评论拉取请求，也不默认阻塞 CI。
 
 ## v0.1 不做什么
 

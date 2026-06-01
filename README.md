@@ -28,27 +28,12 @@ docsync check --fail-on broken_links,missing_sections
 ## Planned GitHub Action
 
 ```yaml
-name: DocSync Guard
-
-on:
-  pull_request:
-    paths:
-      - "README.md"
-      - "README.zh-CN.md"
-      - "docs/**"
-      - "docsync.yml"
-
-jobs:
-  docsync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: taotaotao07/docsync-guard@v0.1
-        with:
-          config: docsync.yml
-          format: markdown
-          comment: false
+- uses: taotaotao07/docsync-guard@v0.1
+  with:
+    config: docsync.yml
 ```
+
+The action prints a terminal report in the job log and writes a Markdown report to the GitHub Actions step summary. It does not comment on pull requests or fail CI by default.
 
 ## v0.1 Non-Goals
 
