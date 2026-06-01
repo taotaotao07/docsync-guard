@@ -1,0 +1,30 @@
+name: DocSync Guard
+description: Catch stale translated Markdown docs before they merge.
+
+inputs:
+  config:
+    description: Path to the DocSync Guard config file.
+    required: false
+    default: docsync.yml
+
+runs:
+  using: composite
+  steps:
+    - name: Install DocSync Guard dependencies
+      shell: bash
+      run: npm ci --prefix "$GITHUB_ACTION_PATH"
+
+    - name: Build DocSync Guard
+      shell: bash
+      run: npm run build --prefix "$GITHUB_ACTION_PATH"
+
+    - name: Print DocSync Guard terminal report
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/dist/cli.js" check --config "${{ inputs.config }}" --format terminal
+
+    - name: Write DocSync Guard step summary
+      shell: bash
+      run: |
+        REPORT_PATH="$RUNNER_TEMP/docsync-guard-summary.md"
+        node "$GITHUB_ACTION_PATH/dist/cli.js" check --config "${{ inputs.config }}" --format markdown --output "$REPORT_PATH"
+        cat "$REPORT_PATH" >> "$GITHUB_STEP_SUMMARY"

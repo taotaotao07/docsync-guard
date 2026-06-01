@@ -1,0 +1,23 @@
+name: DocSync Guard
+
+on:
+  pull_request:
+    paths:
+      - "README.md"
+      - "README.zh-CN.md"
+      - "docs/**"
+      - "docsync.yml"
+      - "src/**"
+      - "tests/**"
+      - "action.yml"
+      - ".github/workflows/docsync-guard.yml"
+  workflow_dispatch:
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          config: docsync.yml
