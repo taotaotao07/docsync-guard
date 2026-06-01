@@ -25,6 +25,31 @@ docsync check --format markdown --output docsync-report.md
 docsync check --fail-on broken_links,missing_sections
 ```
 
+## 计划中的 GitHub Action
+
+```yaml
+name: DocSync Guard
+
+on:
+  pull_request:
+    paths:
+      - "README.md"
+      - "README.zh-CN.md"
+      - "docs/**"
+      - "docsync.yml"
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taotaotao07/docsync-guard@v0.1
+        with:
+          config: docsync.yml
+          format: markdown
+          comment: false
+```
+
 ## v0.1 不做什么
 
 DocSync Guard v0.1 不使用 AI、不调用 OpenAI API、不自动翻译、不改写文档，也不默认阻塞 CI。

@@ -54,6 +54,14 @@ export type DocSyncIssue = {
   message: string;
 };
 
+export type MarkdownHeading = {
+  depth: number;
+  text: string;
+  normalizedText: string;
+  slug: string;
+  line: number;
+};
+
 export type TargetReport = {
   path: string;
   language?: string;
