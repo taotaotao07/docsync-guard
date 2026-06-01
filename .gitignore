@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.docsync-cache.json
+docsync-report.md
+docsync-report.json
+.env
+.DS_Store
