@@ -6,6 +6,12 @@ All notable changes to DocSync Guard will be documented in this file.
 
 - No unreleased changes.
 
+## 0.1.1 - 2026-06-02
+
+- Add `fail_on` examples for relaxed and strict CI modes.
+- Enforce configured `fail_on` and CLI `--fail-on` issue types through the CLI exit code.
+- Add a GitHub Action `fail_on` input.
+
 ## 0.1.0 - 2026-06-02
 
 - Add the `docsync check` CLI.

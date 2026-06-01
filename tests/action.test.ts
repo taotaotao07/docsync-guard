@@ -13,10 +13,12 @@ describe("action.yml", () => {
     };
 
     expect(action.inputs.config.default).toBe("docsync.yml");
+    expect(action.inputs.fail_on.default).toBe("");
     expect(action.inputs).not.toHaveProperty("comment");
     expect(action.runs.using).toBe("composite");
     expect(action.runs.steps.some((step) => step.run?.includes("GITHUB_STEP_SUMMARY"))).toBe(true);
     expect(action.runs.steps.some((step) => step.run?.includes("--format terminal"))).toBe(true);
     expect(action.runs.steps.some((step) => step.run?.includes("--format markdown"))).toBe(true);
+    expect(action.runs.steps.some((step) => step.run?.includes("--fail-on"))).toBe(true);
   });
 });

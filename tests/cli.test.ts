@@ -38,4 +38,21 @@ describe("docsync check", () => {
       await rm(dir, { recursive: true, force: true });
     }
   });
+
+  it("exits with code 1 when --fail-on matches reported issues", async () => {
+    await expect(
+      execFileAsync("node", [
+        "--import",
+        "tsx",
+        "src/cli.ts",
+        "check",
+        "--config",
+        "tests/fixtures/local-resources/docsync.yml",
+        "--fail-on",
+        "broken_links"
+      ])
+    ).rejects.toMatchObject({
+      code: 1
+    });
+  });
 });

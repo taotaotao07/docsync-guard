@@ -3,6 +3,7 @@ import { writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { Command } from "commander";
 import { loadConfig } from "./config.js";
+import { resolveFailOn, shouldFail } from "./failOn.js";
 import { renderReport } from "./report.js";
 import { runChecks } from "./runner.js";
 import type { ReportFormat } from "./types.js";
@@ -13,7 +14,7 @@ export async function runCli(argv = process.argv): Promise<void> {
   program
     .name("docsync")
     .description("Catch stale translated Markdown docs before they merge.")
-    .version("0.1.0");
+    .version("0.1.1");
 
   program
     .command("check")
@@ -23,11 +24,12 @@ export async function runCli(argv = process.argv): Promise<void> {
     .option("-o, --output <path>", "Write report to a file")
     .option("--fail-on <types>", "Comma-separated issue types that should fail CI")
     .option("--quiet", "Only print errors")
-    .action(async (options: { config: string; format?: ReportFormat; output?: string; quiet?: boolean }) => {
+    .action(async (options: { config: string; format?: ReportFormat; output?: string; failOn?: string; quiet?: boolean }) => {
       const config = await loadConfig(options.config);
       const report = await runChecks(config, options.config);
       const format = options.format ?? config.report.format;
       const rendered = renderReport(report, format);
+      const failOn = resolveFailOn(config.fail_on, options.failOn);
 
       if (options.output) {
         await writeFile(options.output, rendered, "utf8");
@@ -35,6 +37,10 @@ export async function runCli(argv = process.argv): Promise<void> {
 
       if (!options.quiet && !options.output) {
         process.stdout.write(rendered);
+      }
+
+      if (shouldFail(report, failOn)) {
+        process.exitCode = 1;
       }
     });
 
