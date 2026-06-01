@@ -17,6 +17,8 @@ describe("docsync check", () => {
       ["source: README.md", "targets:", "  - path: README.zh-CN.md", "    language: zh-CN"].join("\n"),
       "utf8"
     );
+    await writeFile(join(dir, "README.md"), ["# Project", "## Installation", "## API Reference"].join("\n"), "utf8");
+    await writeFile(join(dir, "README.zh-CN.md"), ["# Project", "## 安装"].join("\n"), "utf8");
 
     try {
       const { stdout } = await execFileAsync("node", [
@@ -31,6 +33,7 @@ describe("docsync check", () => {
       expect(stdout).toContain("DocSync Guard Report");
       expect(stdout).toContain("README.md");
       expect(stdout).toContain("README.zh-CN.md (zh-CN)");
+      expect(stdout).toContain("API Reference");
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

@@ -1,5 +1,7 @@
 export { loadConfig, normalizeConfig } from "./config.js";
-export { createEmptyReport, renderTerminalReport } from "./report.js";
+export { parseMarkdownHeadings, normalizeHeading } from "./markdown.js";
+export { createEmptyReport, renderJsonReport, renderMarkdownReport, renderReport, renderTerminalReport } from "./report.js";
+export { runChecks } from "./runner.js";
 export type {
   DocSyncConfig,
   DocSyncIssue,
@@ -7,6 +9,7 @@ export type {
   FailOnConfig,
   IssueSeverity,
   IssueType,
+  MarkdownHeading,
   ReportFormat,
   RulesConfig,
   TargetConfig,
