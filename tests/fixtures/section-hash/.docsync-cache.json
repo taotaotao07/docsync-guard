@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "sources": {
+    "README.md": {
+      "sections": {
+        "quick-start": "old-hash"
+      }
+    }
+  }
+}

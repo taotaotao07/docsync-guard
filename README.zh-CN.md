@@ -4,41 +4,115 @@
 
 DocSync Guard 是一个零 API key 的 CLI 和 GitHub Action，面向维护多语言 Markdown 文档的开源维护者。
 
-它不负责翻译文档。它负责检查维护风险：
+它不负责翻译或改写文档。它负责报告维护风险：
 
 - 缺失的翻译章节
 - 可能过期的源文档章节
 - 损坏的本地链接
-- 缺失的图片路径
+- 缺失的本地图片路径
 - 术语漂移
 
-过期章节检查依赖可选的 `.docsync-cache.json` 基线文件。如果缓存文件不存在，DocSync Guard 会跳过 stale section 报告，不会自行猜测。
+## 快速开始
 
-## 当前状态
-
-DocSync Guard 目前处于 v0.1 规划和项目骨架阶段。v0.1 会保持纯规则、低侵入、默认不阻塞 CI。
-
-## 计划中的 CLI
-
-```bash
-docsync check
-docsync check --config docsync.yml
-docsync check --format markdown --output docsync-report.md
-docsync check --fail-on broken_links,missing_sections
-```
-
-## 计划中的 GitHub Action
+创建 `docsync.yml`：
 
 ```yaml
-- uses: taotaotao07/docsync-guard@v0.1
-  with:
-    config: docsync.yml
+source: README.md
+
+targets:
+  - path: README.zh-CN.md
+    language: zh-CN
+
+rules:
+  heading_structure: true
+  section_hash: true
+  links: true
+  images: true
+  terminology: true
+
+terms:
+  workspace:
+    zh-CN: 工作区
+  pull request:
+    zh-CN: 拉取请求
+  release:
+    zh-CN: 发布
+```
+
+本地运行：
+
+```bash
+docsync check --config docsync.yml
+docsync check --config docsync.yml --format markdown --output docsync-report.md
+docsync check --config docsync.yml --format json --output docsync-report.json
+```
+
+在本仓库中试跑内置 demo：
+
+```bash
+npm install
+npm run build
+node dist/cli.js check --config examples/basic/docsync.yml --format terminal
+```
+
+## GitHub Action
+
+```yaml
+name: DocSync Guard
+
+on:
+  pull_request:
+    paths:
+      - "README.md"
+      - "README.zh-CN.md"
+      - "docs/**"
+      - "docsync.yml"
+
+jobs:
+  docsync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taotaotao07/docsync-guard@v0.1.0
+        with:
+          config: docsync.yml
 ```
 
 这个 Action 会在 job 日志里打印 terminal report，并把 Markdown report 写入 GitHub Actions step summary。v0.1 不默认评论拉取请求，也不默认阻塞 CI。
 
+## 报告示例
+
+示例报告位于 [examples/basic/reports](./examples/basic/reports)：
+
+- [terminal.txt](./examples/basic/reports/terminal.txt)
+- [summary.md](./examples/basic/reports/summary.md)
+- [report.json](./examples/basic/reports/report.json)
+
+这个 demo 会故意报告一个缺失章节、一个可能过期章节、一个损坏链接、一个缺失图片路径和三个术语漂移 warning。
+
+## Section Hash Cache
+
+过期章节检查依赖可选的 `.docsync-cache.json` 基线文件。如果缓存文件不存在，DocSync Guard 会跳过 stale section 报告，不会自行猜测。
+
+示例：
+
+```json
+{
+  "version": 1,
+  "sources": {
+    "README.md": {
+      "sections": {
+        "quick-start": "old-hash"
+      }
+    }
+  }
+}
+```
+
+v0.1 只读取这个缓存，不会自动更新或提交它。
+
 ## v0.1 不做什么
 
-DocSync Guard v0.1 不使用 AI、不调用 OpenAI API、不自动翻译、不改写文档，也不默认阻塞 CI。
+DocSync Guard v0.1 不使用 AI、不调用 OpenAI API、不自动翻译、不改写文档、不评论拉取请求、不检查远程 URL，也不默认阻塞 CI。
 
 完整 v0.1 范围见 [SPEC.md](./SPEC.md)。
