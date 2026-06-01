@@ -3,6 +3,7 @@ import { dirname, resolve } from "node:path";
 import { parseMarkdownHeadings, parseMarkdownResources } from "./markdown.js";
 import { findMissingSections } from "./checks/headings.js";
 import { findBrokenLocalResources } from "./checks/links.js";
+import { findTerminologyDrift } from "./checks/terms.js";
 import type { DocSyncConfig, DocSyncReport } from "./types.js";
 
 export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml"): Promise<DocSyncReport> {
@@ -36,11 +37,20 @@ export async function runChecks(config: DocSyncConfig, configPath = "docsync.yml
               displayPath: target.path
             })
           : [];
+      const terminologyIssues = config.rules.terminology
+        ? findTerminologyDrift({
+            sourceMarkdown,
+            targetMarkdown,
+            targetPath: target.path,
+            language: target.language,
+            terms: config.terms
+          })
+        : [];
 
       return {
         path: target.path,
         language: target.language,
-        issues: [...headingIssues, ...resourceIssues]
+        issues: [...headingIssues, ...resourceIssues, ...terminologyIssues]
       };
     })
   );

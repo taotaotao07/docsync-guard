@@ -45,13 +45,14 @@ export function renderMarkdownReport(report: DocSyncReport): string {
     "",
     "### Summary",
     "",
-    "| Target | Issues | Missing sections | Broken resources |",
-    "|---|---:|---:|---:|",
+    "| Target | Issues | Missing sections | Broken resources | Terminology drift |",
+    "|---|---:|---:|---:|---:|",
     ...report.targets.map((target) => {
       const missingSections = target.issues.filter((issue) => issue.type === "missing_section").length;
       const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link").length;
       const brokenImages = target.issues.filter((issue) => issue.type === "broken_image").length;
-      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} | ${brokenLinks + brokenImages} |`;
+      const terminologyDrift = target.issues.filter((issue) => issue.type === "terminology_drift").length;
+      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} | ${brokenLinks + brokenImages} | ${terminologyDrift} |`;
     })
   ];
 
@@ -74,7 +75,8 @@ export function renderMarkdownReport(report: DocSyncReport): string {
     const missingSections = target.issues.filter((issue) => issue.type === "missing_section");
     const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link");
     const brokenImages = target.issues.filter((issue) => issue.type === "broken_image");
-    if (missingSections.length === 0 && brokenLinks.length === 0 && brokenImages.length === 0) {
+    const terminologyDrift = target.issues.filter((issue) => issue.type === "terminology_drift");
+    if (missingSections.length === 0 && brokenLinks.length === 0 && brokenImages.length === 0 && terminologyDrift.length === 0) {
       continue;
     }
 
@@ -90,6 +92,15 @@ export function renderMarkdownReport(report: DocSyncReport): string {
 
     if (brokenImages.length > 0) {
       lines.push("#### Broken image paths", "", ...brokenImages.map((issue) => `- \`${issue.path ?? issue.message}\``), "");
+    }
+
+    if (terminologyDrift.length > 0) {
+      lines.push(
+        "#### Terminology drift",
+        "",
+        ...terminologyDrift.map((issue) => `- \`${issue.term ?? issue.message}\`: expected \`${issue.expected ?? ""}\``),
+        ""
+      );
     }
   }
 
@@ -131,6 +142,13 @@ function renderIssueLines(target: TargetReport): string[] {
 
   if (grouped.broken_image.length > 0) {
     lines.push("Broken image paths:", ...grouped.broken_image.map((issue) => `- ${issue.path ?? issue.message}`));
+  }
+
+  if (grouped.terminology_drift.length > 0) {
+    lines.push(
+      "Terminology drift:",
+      ...grouped.terminology_drift.map((issue) => `- ${issue.term ?? issue.message}: expected ${issue.expected ?? ""}`)
+    );
   }
 
   return lines;
