@@ -10,6 +10,7 @@ export type {
   IssueSeverity,
   IssueType,
   MarkdownHeading,
+  MarkdownResource,
   ReportFormat,
   RulesConfig,
   TargetConfig,

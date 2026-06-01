@@ -62,6 +62,13 @@ export type MarkdownHeading = {
   line: number;
 };
 
+export type MarkdownResource = {
+  type: "link" | "image";
+  url: string;
+  label: string;
+  line: number;
+};
+
 export type TargetReport = {
   path: string;
   language?: string;
@@ -70,5 +77,6 @@ export type TargetReport = {
 
 export type DocSyncReport = {
   source: string;
+  sourceIssues: DocSyncIssue[];
   targets: TargetReport[];
 };

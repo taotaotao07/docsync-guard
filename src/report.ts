@@ -3,6 +3,7 @@ import type { DocSyncConfig, DocSyncIssue, DocSyncReport, ReportFormat, TargetRe
 export function createEmptyReport(config: DocSyncConfig): DocSyncReport {
   return {
     source: config.source,
+    sourceIssues: [],
     targets: config.targets.map((target) => ({
       path: target.path,
       language: target.language,
@@ -22,8 +23,12 @@ export function renderTerminalReport(report: DocSyncReport): string {
     ...report.targets.map((target) => `- ${target.path}${target.language ? ` (${target.language})` : ""}`),
     "",
     "Summary:",
-    `- Total issues: ${report.targets.reduce((sum, target) => sum + target.issues.length, 0)}`
+    `- Total issues: ${countIssues(report)}`
   ];
+
+  if (report.sourceIssues.length > 0) {
+    lines.push("", report.source, ...renderIssueLines({ path: report.source, issues: report.sourceIssues }));
+  }
 
   for (const target of report.targets) {
     lines.push("", target.path, ...renderIssueLines(target));
@@ -40,22 +45,52 @@ export function renderMarkdownReport(report: DocSyncReport): string {
     "",
     "### Summary",
     "",
-    "| Target | Issues | Missing sections |",
-    "|---|---:|---:|",
+    "| Target | Issues | Missing sections | Broken resources |",
+    "|---|---:|---:|---:|",
     ...report.targets.map((target) => {
       const missingSections = target.issues.filter((issue) => issue.type === "missing_section").length;
-      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} |`;
+      const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link").length;
+      const brokenImages = target.issues.filter((issue) => issue.type === "broken_image").length;
+      return `| \`${target.path}\` | ${target.issues.length} | ${missingSections} | ${brokenLinks + brokenImages} |`;
     })
   ];
 
+  if (report.sourceIssues.length > 0) {
+    const brokenLinks = report.sourceIssues.filter((issue) => issue.type === "broken_link");
+    const brokenImages = report.sourceIssues.filter((issue) => issue.type === "broken_image");
+
+    lines.push("", "### Source document", "", `\`${report.source}\``);
+
+    if (brokenLinks.length > 0) {
+      lines.push("", "#### Broken links", "", ...brokenLinks.map((issue) => `- \`${issue.path ?? issue.message}\``));
+    }
+
+    if (brokenImages.length > 0) {
+      lines.push("", "#### Broken image paths", "", ...brokenImages.map((issue) => `- \`${issue.path ?? issue.message}\``));
+    }
+  }
+
   for (const target of report.targets) {
     const missingSections = target.issues.filter((issue) => issue.type === "missing_section");
-    if (missingSections.length === 0) {
+    const brokenLinks = target.issues.filter((issue) => issue.type === "broken_link");
+    const brokenImages = target.issues.filter((issue) => issue.type === "broken_image");
+    if (missingSections.length === 0 && brokenLinks.length === 0 && brokenImages.length === 0) {
       continue;
     }
 
-    lines.push("", `### ${target.path}`, "", "#### Missing sections", "");
-    lines.push(...missingSections.map((issue) => `- \`${issue.section ?? issue.message}\``));
+    lines.push("", `### ${target.path}`, "");
+
+    if (missingSections.length > 0) {
+      lines.push("#### Missing sections", "", ...missingSections.map((issue) => `- \`${issue.section ?? issue.message}\``), "");
+    }
+
+    if (brokenLinks.length > 0) {
+      lines.push("#### Broken links", "", ...brokenLinks.map((issue) => `- \`${issue.path ?? issue.message}\``), "");
+    }
+
+    if (brokenImages.length > 0) {
+      lines.push("#### Broken image paths", "", ...brokenImages.map((issue) => `- \`${issue.path ?? issue.message}\``), "");
+    }
   }
 
   lines.push("");
@@ -90,6 +125,14 @@ function renderIssueLines(target: TargetReport): string[] {
     lines.push("Missing sections:", ...grouped.missing_section.map((issue) => `- ${issue.section ?? issue.message}`));
   }
 
+  if (grouped.broken_link.length > 0) {
+    lines.push("Broken links:", ...grouped.broken_link.map((issue) => `- ${issue.path ?? issue.message}`));
+  }
+
+  if (grouped.broken_image.length > 0) {
+    lines.push("Broken image paths:", ...grouped.broken_image.map((issue) => `- ${issue.path ?? issue.message}`));
+  }
+
   return lines;
 }
 
@@ -102,4 +145,8 @@ function groupIssues(issues: DocSyncIssue[]): Record<DocSyncIssue["type"], DocSy
     broken_image: issues.filter((issue) => issue.type === "broken_image"),
     terminology_drift: issues.filter((issue) => issue.type === "terminology_drift")
   };
+}
+
+function countIssues(report: DocSyncReport): number {
+  return report.sourceIssues.length + report.targets.reduce((sum, target) => sum + target.issues.length, 0);
 }
