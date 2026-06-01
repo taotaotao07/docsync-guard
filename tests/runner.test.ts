@@ -116,4 +116,38 @@ describe("runChecks", () => {
       await rm(dir, { recursive: true, force: true });
     }
   });
+
+  it("returns terminology drift issues for target docs", async () => {
+    const configPath = "tests/fixtures/terminology/docsync.yml";
+    const config = await loadConfig(configPath);
+    const report = await runChecks(config, configPath);
+    const targetReport = report.targets.find((target) => target.path === "README.zh-CN.md");
+
+    expect(targetReport?.issues).toEqual([
+      {
+        type: "terminology_drift",
+        severity: "warning",
+        target: "README.zh-CN.md",
+        term: "workspace",
+        expected: "工作区",
+        message: 'README.zh-CN.md uses inconsistent terminology for "workspace": expected "工作区"'
+      },
+      {
+        type: "terminology_drift",
+        severity: "warning",
+        target: "README.zh-CN.md",
+        term: "pull request",
+        expected: "拉取请求",
+        message: 'README.zh-CN.md uses inconsistent terminology for "pull request": expected "拉取请求"'
+      },
+      {
+        type: "terminology_drift",
+        severity: "warning",
+        target: "README.zh-CN.md",
+        term: "release",
+        expected: "发布",
+        message: 'README.zh-CN.md uses inconsistent terminology for "release": expected "发布"'
+      }
+    ]);
+  });
 });

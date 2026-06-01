@@ -51,6 +51,8 @@ export type DocSyncIssue = {
   target?: string;
   section?: string;
   path?: string;
+  term?: string;
+  expected?: string;
   message: string;
 };
 
