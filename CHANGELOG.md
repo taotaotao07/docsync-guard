@@ -4,7 +4,7 @@ All notable changes to DocSync Guard will be documented in this file.
 
 ## Unreleased
 
-- No unreleased changes.
+- Document the `.docsync-cache.json` baseline workflow and known limitations.
 
 ## 0.1.1 - 2026-06-02
 

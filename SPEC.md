@@ -203,6 +203,8 @@ Important limitation:
 
 DocSync Guard v0.1 does not claim semantic staleness. It only reports rule-based sync risk.
 
+DocSync Guard v0.1 reads `.docsync-cache.json` but does not automatically generate, update, commit, or open pull requests for cache changes.
+
 ### 7.3 Link Check
 
 Goal:

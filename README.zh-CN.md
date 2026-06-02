@@ -133,7 +133,9 @@ docsync check --config docsync.yml --fail-on broken_links,image_path_broken
 
 ## Section Hash Cache
 
-过期章节检查依赖可选的 `.docsync-cache.json` 基线文件。如果缓存文件不存在，DocSync Guard 会跳过 stale section 报告，不会自行猜测。
+过期章节检查依赖可选的 `.docsync-cache.json` 基线文件。这个缓存会记录某个已确认同步状态下的源文档章节 hash。之后再次运行时，DocSync Guard 会把当前源文档章节和这个基线对比，并在源文档发生变化时报告 `outdated_section` 风险。
+
+如果缓存文件不存在，DocSync Guard 会跳过 stale section 报告，不会自行猜测。标题、链接、图片和术语检查仍会正常运行。
 
 示例：
 
@@ -150,7 +152,25 @@ docsync check --config docsync.yml --fail-on broken_links,image_path_broken
 }
 ```
 
-v0.1 只读取这个缓存，不会自动更新或提交它。
+推荐工作流：
+
+1. 先判断项目是否需要 stale section 风险检查。如果暂时不需要，可以设置 `rules.section_hash: false`。
+2. 在源文档和翻译文档已经确认同步后，为需要追踪的源文档章节准备 `.docsync-cache.json` 基线。
+3. 检查准备好的 `.docsync-cache.json` 基线。
+4. 随文档更新一起提交 `.docsync-cache.json`。
+5. 后续源文档发生变化时，stale section warning 会提示哪些源文档章节已经偏离已提交基线。
+6. 翻译文档更新完成后，在同一个文档 PR 中刷新并重新提交 cache 基线。
+
+在 v0.1 中，这个缓存是只读的：DocSync Guard 会读取 `.docsync-cache.json`，但不会自动生成、更新或提交它。这样可以保持 CI 低侵入，避免隐藏的仓库改动。在官方 cache 生成命令出现前，请把 cache 更新视为一个明确的维护者步骤。
+
+已知限制：
+
+- Section hash 检查只是基于规则的同步风险信号，不是语义翻译质量检查。
+- 提交 cache 前应该人工检查，因为章节重命名或结构调整可能需要新的基线。
+- 如果项目还没有可维护的 cache 基线，建议关闭 `rules.section_hash`。
+- v0.1 不建议让 CI 自动提交 cache 变化。
+
+小型 demo 基线见 [examples/basic/CACHE.md](./examples/basic/CACHE.md)。
 
 ## v0.1 不做什么
 
