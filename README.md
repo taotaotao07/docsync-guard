@@ -133,7 +133,9 @@ The demo intentionally reports one missing section, one stale section, one broke
 
 ## Section Hash Cache
 
-Stale section checks use an optional committed `.docsync-cache.json` baseline. If the cache file is not present, DocSync Guard skips stale section reporting instead of guessing.
+Stale section checks use an optional committed `.docsync-cache.json` baseline. The cache records the source section hashes from a known-good documentation state. On later runs, DocSync Guard compares the current source sections with that baseline and reports `outdated_section` risks when the source changed.
+
+If the cache file is not present, DocSync Guard skips stale section reporting instead of guessing. Heading, link, image, and terminology checks still run normally.
 
 Example:
 
@@ -150,7 +152,25 @@ Example:
 }
 ```
 
-v0.1 reads this cache but does not automatically update or commit it.
+Recommended workflow:
+
+1. Decide whether your project needs stale section risk checks. If not, set `rules.section_hash: false`.
+2. After source and translated docs are intentionally in sync, prepare a `.docsync-cache.json` baseline for the source sections you want to track.
+3. Review the prepared `.docsync-cache.json` baseline.
+4. Commit `.docsync-cache.json` with the documentation update.
+5. When source docs change later, stale section warnings show which source sections moved away from the committed baseline.
+6. After translated docs are updated, refresh and recommit the cache baseline in the same docs PR.
+
+For v0.1, the cache is read-only: DocSync Guard reads `.docsync-cache.json`, but it does not automatically generate, update, or commit the file. This keeps CI low-intrusion and avoids hidden repository changes. Until a first-party cache generation command exists, treat cache updates as an explicit maintainer step.
+
+Known limitations:
+
+- Section hash checks are rule-based sync risk signals, not semantic translation quality checks.
+- Cache entries should be reviewed before committing because renamed or reorganized sections may need a fresh baseline.
+- Projects without a maintained cache baseline should disable `rules.section_hash`.
+- CI should not auto-commit cache changes in v0.1.
+
+See [examples/basic/CACHE.md](./examples/basic/CACHE.md) for a small demo baseline.
 
 ## v0.1 Non-Goals
 
