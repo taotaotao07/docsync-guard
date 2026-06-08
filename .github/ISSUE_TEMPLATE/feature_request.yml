@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a focused improvement for DocSync Guard.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        DocSync Guard aims to stay low-intrusion and maintainer-focused. Please describe the maintenance problem before proposing a solution.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Maintenance problem
+      description: What real documentation workflow pain would this solve?
+      placeholder: Our translated README uses different heading names, so the current heading check reports false positives.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: What should DocSync Guard do?
+      placeholder: Allow a config-based heading alias map for known translated headings.
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals or constraints
+      description: What should this feature avoid doing?
+      placeholder: It should not use AI, rewrite docs, or require a remote service.
+    validations:
+      required: false
+  - type: textarea
+    id: example
+    attributes:
+      label: Example
+      description: Include sample Markdown, config, or report output if useful.
+      render: markdown
+    validations:
+      required: false

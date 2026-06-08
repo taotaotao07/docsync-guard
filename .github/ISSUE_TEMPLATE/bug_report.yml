@@ -1,0 +1,54 @@
+name: Bug report
+description: Report something that is broken or surprising in DocSync Guard.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve DocSync Guard. Please include the smallest Markdown/config example that reproduces the issue.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the incorrect behavior and what you expected instead.
+      placeholder: DocSync Guard reported a broken link that exists locally.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Include the relevant Markdown, `docsync.yml`, and command if possible.
+      render: markdown
+      placeholder: |
+        ```yaml
+        source: README.md
+        targets:
+          - path: README.zh-CN.md
+            language: zh-CN
+        ```
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output
+      description: Paste the terminal, Markdown, or JSON report output.
+      render: text
+    validations:
+      required: false
+  - type: input
+    id: version
+    attributes:
+      label: DocSync Guard version
+      placeholder: v0.1.1
+    validations:
+      required: false
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Node 20, GitHub Actions ubuntu-latest, Windows PowerShell, etc.
+    validations:
+      required: false
